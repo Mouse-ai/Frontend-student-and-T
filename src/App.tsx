@@ -1,22 +1,18 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/Header';
-import Mentors from './pages/Mentors';
-import Booking from './pages/Booking';
-import Dashboard from './pages/Dashboard';
-
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/mentors" element={<Mentors />} />
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-blue-600 mb-4">
+            Student IT Hub
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Система работает! 🚀
+          </p>
+          <p className="text-gray-500 mt-2">
+            Завтра начинаем разработку
+          </p>
+        </div>
       </div>
-    </Router>
   );
 }
 
