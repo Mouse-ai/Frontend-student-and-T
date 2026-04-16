@@ -7,6 +7,8 @@ export interface User {
     role: 'student' | 'mentor' | 'admin';
     university?: string;
     course?: string;
+    position?: string; // Добавили для ментора
+    department?: string; // Добавили для ментора
     createdAt: string;
 }
 
@@ -58,7 +60,6 @@ export const register = (userData: Omit<User, 'id' | 'createdAt'>): { success: b
     if (users.find(u => u.email === userData.email)) {
         return { success: false, message: 'Пользователь с таким email уже существует' };
     }
-
     const newUser: User = {
         ...userData,
         id: `user-${Date.now()}`,

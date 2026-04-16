@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, Bell, Check, Trash2, AlertCircle,
+    ArrowLeft, Bell, Check, Trash2,
     MapPin, Users, FolderOpen, Info
 } from 'lucide-react';
 import {

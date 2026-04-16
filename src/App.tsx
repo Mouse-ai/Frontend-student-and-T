@@ -12,6 +12,13 @@ import ProjectDetails from './pages/student/ProjectDetails';
 import BookingPage from './pages/student/BookingPage';
 import CalendarPage from './pages/student/CalendarPage';
 import NotificationsPage from './pages/student/NotificationsPage';
+import MentorRegisterPage from './pages/MentorRegisterPage';
+import MentorDashboard from './pages/mentor/MentorDashboard';
+import MentorProfile from './pages/mentor/MentorProfile';
+import MentorCalendar from './pages/mentor/MentorCalendar';
+import MentorProjects from './pages/mentor/MentorProjects';
+import MentorNotifications from './pages/mentor/MentorNotifications';
+
 function App() {
     return (
         <Router>
@@ -29,11 +36,53 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                <Route path="/register/mentor" element={<MentorRegisterPage />} />
                 <Route
                     path="/student/calendar"
                     element={
                         <ProtectedRoute requiredRole="student">
                             <CalendarPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/mentor/projects"
+                    element={
+                        <ProtectedRoute requiredRole="mentor">
+                            <MentorProjects />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/mentor/notifications"
+                    element={
+                        <ProtectedRoute requiredRole="mentor">
+                            <MentorNotifications />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/mentor/dashboard"
+                    element={
+                        <ProtectedRoute requiredRole="mentor">
+                            <MentorDashboard />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/mentor/profile"
+                    element={
+                        <ProtectedRoute requiredRole="mentor">
+                            <MentorProfile />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/mentor/calendar"
+                    element={
+                        <ProtectedRoute requiredRole="mentor">
+                            <MentorCalendar />
                         </ProtectedRoute>
                     }
                 />

@@ -101,6 +101,12 @@ const LoginPage: React.FC = () => {
                         </Link>
                     </p>
                 </div>
+                <div className="mt-4 text-center border-t border-gray-100 pt-4">
+                    <p className="text-sm text-gray-500 mb-2">Вы ментор?</p>
+                    <Link to="/register/mentor" className="text-sm font-medium text-t-bank-black hover:underline">
+                        Зарегистрироваться как ментор
+                    </Link>
+                </div>
             </div>
         </div>
     );
