@@ -9,7 +9,9 @@ import CreateProject from './pages/student/CreateProject';
 import MentorList from './pages/student/MentorList';
 import MentorAvailability from './pages/student/MentorAvailability';
 import ProjectDetails from './pages/student/ProjectDetails';
-
+import BookingPage from './pages/student/BookingPage';
+import CalendarPage from './pages/student/CalendarPage';
+import NotificationsPage from './pages/student/NotificationsPage';
 function App() {
     return (
         <Router>
@@ -27,7 +29,31 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                <Route
+                    path="/student/calendar"
+                    element={
+                        <ProtectedRoute requiredRole="student">
+                            <CalendarPage />
+                        </ProtectedRoute>
+                    }
+                />
 
+                <Route
+                    path="/student/notifications"
+                    element={
+                        <ProtectedRoute requiredRole="student">
+                            <NotificationsPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/student/booking"
+                    element={
+                        <ProtectedRoute requiredRole="student">
+                            <BookingPage />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route
                     path="/student/projects"
                     element={

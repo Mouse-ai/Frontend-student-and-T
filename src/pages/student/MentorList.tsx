@@ -167,11 +167,10 @@ const MentorList: React.FC = () => {
                                 </div>
                                 <button
                                     onClick={() => {
-                                        // Получаем projectId из URL
                                         const params = new URLSearchParams(window.location.search);
                                         const projectId = params.get('projectId');
-                                        // Переходим, сохраняя projectId
-                                        navigate(`/student/mentors/${mentor.id}/request?projectId=${projectId}`);
+                                        // Передаём имя ментора в URL
+                                        navigate(`/student/mentors/${mentor.id}/request?projectId=${projectId}&mentorName=${encodeURIComponent(mentor.name)}`);
                                     }}
                                     className="ml-4 bg-t-bank-yellow text-t-bank-black px-6 py-3 rounded-lg font-bold hover:bg-yellow-400 transition-colors flex items-center space-x-2"
                                 >

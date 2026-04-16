@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, FolderOpen, Plus, User, Calendar,
-    MoreVertical, Clock, CheckCircle, AlertCircle
+    ArrowLeft, FolderOpen, Plus, User, Clock,
+    MoreVertical, CheckCircle, AlertCircle
 } from 'lucide-react';
 import { getUserProjects, Project } from '../../services/projectService';
 
@@ -10,15 +10,24 @@ const StudentProjects: React.FC = () => {
     const navigate = useNavigate();
     const [projects, setProjects] = useState<Project[]>([]);
 
-    useEffect(() => {
+    const loadProjects = () => {
         const userProjects = getUserProjects();
+        // Сортировка по дате (сначала новые)
+        userProjects.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         setProjects(userProjects);
+    };
+
+    useEffect(() => {
+        loadProjects();
+        // Слушаем фокус окна, чтобы обновить данные, если студент вернулся с другой вкладки
+        window.addEventListener('focus', loadProjects);
+        return () => window.removeEventListener('focus', loadProjects);
     }, []);
 
     const getStatusBadge = (project: Project) => {
         if (project.mentorRequestStatus === 'pending') {
             return (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border border-yellow-200">
           <Clock className="w-3 h-3 mr-1" />
           Запрос отправлен
         </span>
@@ -26,14 +35,14 @@ const StudentProjects: React.FC = () => {
         }
         if (project.mentor) {
             return (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
           <CheckCircle className="w-3 h-3 mr-1" />
           Ментор назначен
         </span>
             );
         }
         return (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
         <AlertCircle className="w-3 h-3 mr-1" />
         Нет ментора
       </span>
@@ -103,13 +112,14 @@ const StudentProjects: React.FC = () => {
                                         <p className="text-gray-600 mb-4">{project.description}</p>
 
                                         <div className="flex items-center space-x-6 text-sm">
+                                            {/* Логика отображения статуса ментора */}
                                             {project.mentorRequestStatus === 'pending' && project.requestedMentorName ? (
-                                                <div className="flex items-center space-x-2 text-yellow-600">
+                                                <div className="flex items-center space-x-2 text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full">
                                                     <Clock className="w-4 h-4" />
                                                     <span>Запрос: {project.requestedMentorName}</span>
                                                 </div>
                                             ) : project.mentor ? (
-                                                <div className="flex items-center space-x-2 text-green-600">
+                                                <div className="flex items-center space-x-2 text-green-600 bg-green-50 px-3 py-1 rounded-full">
                                                     <User className="w-4 h-4" />
                                                     <span>Ментор: {project.mentor.name}</span>
                                                 </div>

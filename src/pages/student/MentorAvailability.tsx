@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom'; // Добавили useSearchParams
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Clock, Check, Users } from 'lucide-react';
-import { updateProject } from '../../services/projectService'; // Импортируем сервис
+import { updateProject } from '../../services/projectService';
 
 const MentorAvailability: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const projectId = searchParams.get('projectId'); // Получаем ID проекта из URL
-
-    const mentor = {
-        name: 'Анна Петрова',
-        role: 'Senior Frontend Developer'
-    };
+    const projectId = searchParams.get('projectId');
+    const mentorName = searchParams.get('mentorName') || 'Анна Петрова'; // Берём из URL или дефолтное
 
     const slots = [
         { id: 1, date: '2026-04-20', time: '14:00', isAvailable: true },
@@ -28,14 +24,12 @@ const MentorAvailability: React.FC = () => {
         if (!selectedSlotId || !projectId) return;
         setLoading(true);
 
-        // Находим выбранный слот
         const selectedSlot = slots.find(s => s.id === selectedSlotId);
 
         setTimeout(() => {
-            // Обновляем проект: ставим статус pending и сохраняем имя ментора
             updateProject(projectId, {
                 mentorRequestStatus: 'pending',
-                requestedMentorName: mentor.name,
+                requestedMentorName: mentorName, // Используем реальное имя
                 meetingDate: selectedSlot ? `${selectedSlot.date} ${selectedSlot.time}` : undefined
             });
 
@@ -43,8 +37,6 @@ const MentorAvailability: React.FC = () => {
             navigate('/student/projects');
         }, 800);
     };
-
-    // ... остальной код рендера (JSX) остается без изменений ...
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -64,8 +56,8 @@ const MentorAvailability: React.FC = () => {
                             <Users className="w-8 h-8 text-t-bank-black" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-t-bank-black">Ментор: {mentor.name}</h2>
-                            <p className="text-gray-600">{mentor.role}</p>
+                            <h2 className="text-2xl font-bold text-t-bank-black">Ментор: {mentorName}</h2>
+                            <p className="text-gray-600">Senior Developer</p>
                         </div>
                     </div>
 

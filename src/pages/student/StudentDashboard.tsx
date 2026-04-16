@@ -2,23 +2,123 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Home, Calendar, Briefcase, Bell, LogOut,
-    MapPin, User, FolderOpen, Plus, AlertCircle, Clock, CheckCircle
+    MapPin, User, FolderOpen, Plus, AlertCircle, Clock, CheckCircle,
+    Sparkles, ArrowRight
 } from 'lucide-react';
 import { getCurrentUser, logout, User as UserType } from '../../services/authService';
 import { getUserProjects, Project } from '../../services/projectService';
+import { getUnreadCount } from '../../services/notificationService';
+import { getUserBookings, Booking } from '../../services/bookingService';
+
+interface DashboardEvent {
+    id: string;
+    type: 'booking' | 'project';
+    time: string;
+    date: string;
+    title: string;
+    location: string;
+    rawDate: Date;
+}
 
 const StudentDashboard: React.FC = () => {
     const navigate = useNavigate();
     const [currentUser, setCurrentUser] = useState<UserType | null>(null);
     const [projects, setProjects] = useState<Project[]>([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [upcomingEvents, setUpcomingEvents] = useState<DashboardEvent[]>([]);
 
-    useEffect(() => {
+    // Моковые данные официальных мероприятий Т-Банка
+    const T_BANK_EVENTS = [
+        {
+            id: 'tb-1',
+            title: 'Хакатон: FinTech Solutions 2026',
+            date: '25–27 Апреля 2026',
+            type: 'Хакатон',
+            description: '48 часов кода, менторства и призов. Формируй команду и создавай продукт для банка.',
+            color: 'bg-purple-50 border-purple-200 text-purple-700'
+        },
+        {
+            id: 'tb-2',
+            title: 'Воркшоп: AI в продуктовых решениях',
+            date: '20 Мая 2026',
+            type: 'Воркшоп',
+            description: 'Как внедрять LLM в реальные кейсы. Спикер: Head of AI Direction.',
+            color: 'bg-blue-50 border-blue-200 text-blue-700'
+        },
+        {
+            id: 'tb-3',
+            title: 'Нетворкинг: Вечер с экспертами',
+            date: '15 Мая 2026',
+            type: 'Нетворкинг',
+            description: 'Неформальная встреча с лидами направлений. Живое общение и обмен опытом.',
+            color: 'bg-green-50 border-green-200 text-green-700'
+        }
+    ];
+
+    const loadData = () => {
         const user = getCurrentUser();
         setCurrentUser(user);
 
-        // Загружаем проекты пользователя
+        // 1. Проекты
         const userProjects = getUserProjects();
-        setProjects(userProjects.slice(0, 3)); // Показываем только 3 последних
+        userProjects.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setProjects(userProjects.slice(0, 3));
+
+        // 2. Уведомления
+        setUnreadCount(getUnreadCount());
+
+        // 3. События (Бронирования + Встречи по проектам)
+        const bookings = getUserBookings();
+        const now = new Date();
+        const events: DashboardEvent[] = [];
+
+        // Бронирования
+        bookings.forEach((b: Booking) => {
+            const startTime = b.timeSlot.split(' - ')[0];
+            const eventDate = new Date(`${b.date}T${startTime}:00`);
+            if (eventDate >= now) {
+                events.push({
+                    id: `book-${b.id}`,
+                    type: 'booking',
+                    time: b.timeSlot,
+                    date: b.date,
+                    title: `Бронирование: ${b.seatNumber}`,
+                    location: `IT-Хаб Т-Банка`,
+                    rawDate: eventDate
+                });
+            }
+        });
+
+        // Встречи по проектам
+        userProjects.forEach((p: Project) => {
+            if (p.meetingDate) {
+                const [dateStr, timeStr] = p.meetingDate.split(' ');
+                if (dateStr && timeStr) {
+                    const eventDate = new Date(`${dateStr}T${timeStr}:00`);
+                    if (eventDate >= now) {
+                        events.push({
+                            id: `proj-${p.id}`,
+                            type: 'project',
+                            time: timeStr,
+                            date: dateStr,
+                            title: `Встреча по проекту`,
+                            location: p.name,
+                            rawDate: eventDate
+                        });
+                    }
+                }
+            }
+        });
+
+        // Сортируем по дате
+        events.sort((a, b) => a.rawDate.getTime() - b.rawDate.getTime());
+        setUpcomingEvents(events);
+    };
+
+    useEffect(() => {
+        loadData();
+        window.addEventListener('focus', loadData);
+        return () => window.removeEventListener('focus', loadData);
     }, []);
 
     const handleLogout = () => {
@@ -29,15 +129,10 @@ const StudentDashboard: React.FC = () => {
     const studentName = currentUser?.fullName || "Студент";
     const university = currentUser?.university || "";
 
-    const upcomingMeetings = [
-        { id: 1, time: "14:00", title: "Встреча с ментором (Frontend)", location: "IT-Хаб Москва" },
-        { id: 2, time: "16:30", title: "Лекция по AI", location: "Онлайн" },
-    ];
-
     const getStatusBadge = (project: Project) => {
         if (project.mentorRequestStatus === 'pending') {
             return (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border border-yellow-200">
           <Clock className="w-3 h-3 mr-1" />
           Запрос отправлен
         </span>
@@ -45,18 +140,23 @@ const StudentDashboard: React.FC = () => {
         }
         if (project.mentor) {
             return (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
           <CheckCircle className="w-3 h-3 mr-1" />
           Ментор назначен
         </span>
             );
         }
         return (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
         <AlertCircle className="w-3 h-3 mr-1" />
         Нет ментора
       </span>
         );
+    };
+
+    const formatDate = (dateStr: string) => {
+        const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
+        return new Date(dateStr).toLocaleDateString('ru-RU', options);
     };
 
     return (
@@ -74,10 +174,15 @@ const StudentDashboard: React.FC = () => {
 
                 <nav className="flex-1 p-4 space-y-2">
                     <SidebarItem icon={<Home />} label="Главная" active />
-                    <SidebarItem icon={<Calendar />} label="Календарь" onClick={() => {}} />
-                    <SidebarItem icon={<MapPin />} label="Бронирование мест" onClick={() => {}} />
+                    <SidebarItem icon={<Calendar />} label="Календарь" onClick={() => navigate('/student/calendar')} />
+                    <SidebarItem icon={<MapPin />} label="Бронирование мест" onClick={() => navigate('/student/booking')} />
                     <SidebarItem icon={<FolderOpen />} label="Мои проекты" onClick={() => navigate('/student/projects')} />
-                    <SidebarItem icon={<Bell />} label="Уведомления" badge="2" onClick={() => {}} />
+                    <SidebarItem
+                        icon={<Bell />}
+                        label="Уведомления"
+                        badge={unreadCount > 0 ? unreadCount.toString() : undefined}
+                        onClick={() => navigate('/student/notifications')}
+                    />
                 </nav>
 
                 <div className="p-4 border-t border-gray-200">
@@ -100,23 +205,21 @@ const StudentDashboard: React.FC = () => {
                         <p className="text-sm text-gray-600">{university}</p>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-t-bank-yellow rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-t-bank-yellow rounded-full flex items-center justify-center cursor-pointer hover:ring-2 ring-offset-2 ring-t-bank-yellow transition-all">
                             <User className="w-5 h-5 text-t-bank-black" />
                         </div>
                     </div>
                 </header>
 
-                {/* Dashboard Content */}
-                <div className="p-8">
-
+                <div className="p-8 space-y-8">
                     {/* Quick Actions Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <ActionCard
                             title="Забронировать место"
                             desc="Найди свободное место в хабе"
                             icon={<MapPin className="w-8 h-8" />}
                             color="bg-blue-50 text-blue-600"
-                            onClick={() => {}}
+                            onClick={() => navigate('/student/booking')}
                         />
                         <ActionCard
                             title="Мои проекты"
@@ -135,7 +238,7 @@ const StudentDashboard: React.FC = () => {
                     </div>
 
                     {/* My Projects Section */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-t-bank-black">Мои проекты</h2>
                             <button
@@ -168,26 +271,32 @@ const StudentDashboard: React.FC = () => {
                                         onClick={() => navigate(`/student/projects/${project.id}`)}
                                         className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
                                     >
-                                        <div className="flex items-center space-x-4 flex-1">
-                                            <div className="bg-t-bank-yellow p-2 rounded-lg">
+                                        <div className="flex items-center space-x-4 flex-1 min-w-0">
+                                            <div className="bg-t-bank-yellow p-2 rounded-lg flex-shrink-0">
                                                 <FolderOpen className="w-5 h-5 text-t-bank-black" />
                                             </div>
-                                            <div className="flex-1">
+                                            <div className="flex-1 min-w-0">
                                                 <div className="flex items-center space-x-2 mb-1">
-                                                    <p className="font-bold text-t-bank-black">{project.name}</p>
+                                                    <p className="font-bold text-t-bank-black truncate">{project.name}</p>
                                                     {getStatusBadge(project)}
                                                 </div>
                                                 <p className="text-sm text-gray-600 line-clamp-1">{project.description}</p>
                                                 {project.mentorRequestStatus === 'pending' && project.requestedMentorName && (
-                                                    <p className="text-xs text-yellow-600 mt-1 flex items-center">
+                                                    <p className="text-xs text-yellow-600 mt-1 flex items-center font-medium">
                                                         <Clock className="w-3 h-3 mr-1" />
                                                         Запрос: {project.requestedMentorName}
+                                                    </p>
+                                                )}
+                                                {project.mentor && (
+                                                    <p className="text-xs text-green-600 mt-1 flex items-center font-medium">
+                                                        <User className="w-3 h-3 mr-1" />
+                                                        Ментор: {project.mentor.name}
                                                     </p>
                                                 )}
                                             </div>
                                         </div>
                                         {project.teamMembers.length > 0 && (
-                                            <div className="flex items-center space-x-1 text-gray-500 text-sm">
+                                            <div className="flex items-center space-x-1 text-gray-500 text-sm ml-4">
                                                 <User className="w-4 h-4" />
                                                 <span>{project.teamMembers.length}</span>
                                             </div>
@@ -198,36 +307,84 @@ const StudentDashboard: React.FC = () => {
                         )}
                     </div>
 
-                    {/* Upcoming Schedule */}
+                    {/* Upcoming Events Section (Dynamic) */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h2 className="text-xl font-bold mb-4 text-t-bank-black">Ближайшие события</h2>
-                        <div className="space-y-4">
-                            {upcomingMeetings.map(meeting => (
-                                <div key={meeting.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="bg-t-bank-yellow px-3 py-1 rounded font-bold text-sm">
-                                            {meeting.time}
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-t-bank-black">Ближайшие события</h2>
+                            <button
+                                onClick={() => navigate('/student/calendar')}
+                                className="text-sm font-medium text-t-bank-black border border-t-bank-black px-3 py-1 rounded hover:bg-t-bank-yellow transition-colors flex items-center space-x-1"
+                            >
+                                <span>Календарь</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {upcomingEvents.length === 0 ? (
+                            <div className="text-center py-10 bg-gray-50 rounded-lg">
+                                <Calendar className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+                                <p className="text-gray-600">Нет запланированных событий</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {upcomingEvents.map(event => (
+                                    <div key={event.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                        <div className="flex items-center space-x-4">
+                                            <div className={`px-3 py-1 rounded font-bold text-sm ${event.type === 'booking' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                                                {event.time}
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-t-bank-black">{event.title}</p>
+                                                <p className="text-sm text-gray-500">{event.location} • {formatDate(event.date)}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-bold text-t-bank-black">{meeting.title}</p>
-                                            <p className="text-sm text-gray-500">{meeting.location}</p>
-                                        </div>
+                                        <button className="text-sm font-medium text-t-bank-black border border-t-bank-black px-3 py-1 rounded hover:bg-t-bank-yellow transition-colors">
+                                            Подробнее
+                                        </button>
                                     </div>
-                                    <button className="text-sm font-medium text-t-bank-black border border-t-bank-black px-3 py-1 rounded hover:bg-t-bank-yellow transition-colors">
-                                        Подробнее
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* T-Bank Official Events Section */}
+                    <div>
+                        <div className="flex items-center space-x-2 mb-6">
+                            <div className="bg-t-bank-yellow p-2 rounded-lg">
+                                <Sparkles className="w-5 h-5 text-t-bank-black" />
+                            </div>
+                            <h2 className="text-xl font-bold text-t-bank-black">Активные мероприятия Т-Банка</h2>
+                        </div>
+
+                        <div className="grid md:grid-cols-3 gap-6">
+                            {T_BANK_EVENTS.map(ev => (
+                                <div
+                                    key={ev.id}
+                                    className={`bg-white rounded-xl border-2 p-6 hover:shadow-lg transition-shadow cursor-pointer flex flex-col ${ev.color.replace('text-', 'border-').split(' ')[1]} ${ev.color.split(' ')[0]}`}
+                                >
+                                    <div className="flex justify-between items-start mb-4">
+                    <span className="px-2 py-1 rounded text-xs font-bold uppercase tracking-wide bg-white/70">
+                      {ev.type}
+                    </span>
+                                        <span className="text-xs font-medium opacity-70">{ev.date}</span>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-t-bank-black mb-2">{ev.title}</h3>
+                                    <p className="text-sm opacity-80 mb-6 flex-1">{ev.description}</p>
+                                    <button className="w-full py-2.5 rounded-lg font-bold bg-t-bank-black text-white hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2">
+                                        <span>Подробнее</span>
+                                        <ArrowRight className="w-4 h-4" />
                                     </button>
                                 </div>
                             ))}
                         </div>
                     </div>
-
                 </div>
             </main>
         </div>
     );
 };
 
-// Helper Components for Dashboard
+// Helper Components
 interface SidebarItemProps {
     icon: React.ReactNode;
     label: string;
