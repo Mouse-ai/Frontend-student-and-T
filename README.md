@@ -1,30 +1,69 @@
-# React + TypeScript + Vite
+# Студент и Т — Платформа для студентов партнёрских вузов Т-Банка
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Платформа для взаимодействия студентов с IT-хабом Т-Банка: бронирование рабочих мест, поиск менторов, участие в проектах и развитие карьеры в IT.
 
-Currently, two official plugins are available:
+## 🚀 Возможности
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Для студентов
+- 📅 **Бронирование рабочих мест** в IT-хабе Т-Банка
+- 👨‍ **Поиск менторов** среди сотрудников банка
+- 📂 **Создание проектов** и приглашение команды
+- 📆 **Календарь** событий и встреч
+- 🔔 **Уведомления** о важных событиях
+- 📊 **Отслеживание прогресса** по проектам
 
-## Expanding the ESLint configuration
+### Для менторов
+- 📨 **Управление запросами** от студентов
+- 📋 **Настройка расписания** доступности
+- 👥 **Ведение проектов** и студентов
+- 💼 **Профиль** с указанием навыков и опыта
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Для администраторов
+- 📈 **Полная аналитика** использования платформы
+- 👤 **Управление пользователями** (студенты, менторы)
+- ✅ **Одобрение менторов**
+- 📊 **Метрики**: DAU/WAU/MAU, загрузка хабов, конверсии
+- 🗑️ **Управление проектами** и бронированиями
 
-- Configure the top-level `parserOptions` property like this:
+## 🛠 Технологический стек
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+- **Frontend:** React 18 + TypeScript
+- **Стилизация:** Tailwind CSS
+- **Роутинг:** React Router DOM
+- **Иконки:** Lucide React
+- **Хранение данных:** LocalStorage (для демонстрации)
+- **Сборка:** Vite
+## 📁 Структура проекта
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+src/
+├── pages/
+│   ├── HomePage.tsx              # Лендинг
+│   ├── LoginPage.tsx             # Вход
+│   ├── RegisterPage.tsx          # Регистрация студента
+│   ├── MentorRegisterPage.tsx    # Регистрация ментора
+│   ├── student/                  # Страницы студента
+│   │   ├── StudentDashboard.tsx
+│   │   ├── StudentProjects.tsx
+│   │   ├── CreateProject.tsx
+│   │   ├── ProjectDetails.tsx
+│   │   ├── MentorList.tsx
+│   │   ├── MentorAvailability.tsx
+│   │   ├── BookingPage.tsx
+│   │   ├── CalendarPage.tsx
+│   │   └── NotificationsPage.tsx
+│   ├── mentor/                   # Страницы ментора
+│   │   ├── MentorDashboard.tsx
+│   │   ├── MentorProjects.tsx
+│   │   ├── MentorCalendar.tsx
+│   │   ├── MentorProfile.tsx
+│   │   └── MentorNotifications.tsx
+│   └── admin/
+│       └── AdminDashboard.tsx    # Панель администратора
+├── services/
+│   ├── authService.ts            # Аутентификация
+│   ├── projectService.ts         # Проекты
+│   ├── bookingService.ts         # Бронирования
+│   └── notificationService.ts    # Уведомления
+├── components/
+│   └── ProtectedRoute.tsx        # Защищённые маршруты
+└── App.tsx                       # Основной компонент
