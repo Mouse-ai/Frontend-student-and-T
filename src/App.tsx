@@ -4,6 +4,11 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import StudentDashboard from './pages/student/StudentDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import StudentProjects from './pages/student/StudentProjects';
+import CreateProject from './pages/student/CreateProject';
+import MentorList from './pages/student/MentorList';
+import MentorAvailability from './pages/student/MentorAvailability';
+import ProjectDetails from './pages/student/ProjectDetails';
 
 function App() {
     return (
@@ -23,7 +28,51 @@ function App() {
                     }
                 />
 
-                {/* Здесь будут маршруты для ментора и админа */}
+                <Route
+                    path="/student/projects"
+                    element={
+                        <ProtectedRoute requiredRole="student">
+                            <StudentProjects />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/student/projects/create"
+                    element={
+                        <ProtectedRoute requiredRole="student">
+                            <CreateProject />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/student/projects/:projectId"
+                    element={
+                        <ProtectedRoute requiredRole="student">
+                            <ProjectDetails />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/student/mentors"
+                    element={
+                        <ProtectedRoute requiredRole="student">
+                            <MentorList />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/student/mentors/:mentorId/request"
+                    element={
+                        <ProtectedRoute requiredRole="student">
+                            <MentorAvailability />
+                        </ProtectedRoute>
+                    }
+                />
+
                 <Route
                     path="/mentor/dashboard"
                     element={
