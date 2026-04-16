@@ -18,6 +18,7 @@ import MentorProfile from './pages/mentor/MentorProfile';
 import MentorCalendar from './pages/mentor/MentorCalendar';
 import MentorProjects from './pages/mentor/MentorProjects';
 import MentorNotifications from './pages/mentor/MentorNotifications';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 function App() {
     return (
@@ -33,6 +34,14 @@ function App() {
                     element={
                         <ProtectedRoute requiredRole="student">
                             <StudentDashboard />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/dashboard"
+                    element={
+                        <ProtectedRoute requiredRole="admin">
+                            <AdminDashboard />
                         </ProtectedRoute>
                     }
                 />

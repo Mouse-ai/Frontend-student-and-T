@@ -7,8 +7,9 @@ export interface User {
     role: 'student' | 'mentor' | 'admin';
     university?: string;
     course?: string;
-    position?: string; // Добавили для ментора
-    department?: string; // Добавили для ментора
+    position?: string;
+    department?: string;
+    isApproved?: boolean; // Добавили это поле
     createdAt: string;
 }
 
@@ -103,4 +104,33 @@ export const getCurrentUser = (): User | null => {
 // Проверка аутентификации
 export const isAuthenticated = (): boolean => {
     return getCurrentUser() !== null;
+};
+// ... внутри src/services/authService.ts
+
+// Одобрить ментора
+export const approveMentor = (userId: string) => {
+    const users = getUsers();
+    const index = users.findIndex(u => u.id === userId);
+    if (index !== -1) {
+        // В реальности здесь было бы поле isApproved, но пока просто меняем роль или ставим флаг
+        users[index] = { ...users[index], isApproved: true };
+        saveUsers(users);
+    }
+};
+
+// Удалить пользователя
+export const deleteUser = (userId: string) => {
+    const users = getUsers();
+    const filtered = users.filter(u => u.id !== userId);
+    saveUsers(filtered);
+};
+
+// Получить всех менторов (для таблицы админа)
+export const getAllMentors = () => {
+    return getUsers().filter(u => u.role === 'mentor');
+};
+
+// Получить всех пользователей
+export const getAllUsers = () => {
+    return getUsers();
 };

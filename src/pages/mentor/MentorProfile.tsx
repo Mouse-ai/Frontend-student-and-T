@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, Save, User, Briefcase, Award, MapPin,
+    ArrowLeft, Save, User,
     Plus, X, Check
 } from 'lucide-react';
 import { getCurrentUser } from '../../services/authService';

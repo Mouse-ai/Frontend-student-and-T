@@ -92,3 +92,12 @@ export const updateProject = (id: string, updates: Partial<Project>): Project | 
     saveProjects(projects);
     return projects[index];
 };
+export const deleteProject = (id: string): boolean => {
+    const projects = getProjects();
+    const filtered = projects.filter(p => p.id !== id);
+
+    if (filtered.length === projects.length) return false;
+
+    saveProjects(filtered);
+    return true;
+};

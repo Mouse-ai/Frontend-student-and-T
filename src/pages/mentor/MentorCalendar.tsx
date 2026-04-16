@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Calendar as CalendarIcon, Check, Save } from 'lucide-react';
+import { ArrowLeft, Check, Save } from 'lucide-react';
 
 const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const TIME_SLOTS = [
