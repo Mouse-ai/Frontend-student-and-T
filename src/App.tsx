@@ -1,19 +1,49 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import StudentDashboard from './pages/student/StudentDashboard';
+import ProtectedRoute from './components/ProtectedRoute';
+
 function App() {
-  return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-blue-600 mb-4">
-            Student IT Hub
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Система работает! 🚀
-          </p>
-          <p className="text-gray-500 mt-2">
-            Завтра начинаем разработку
-          </p>
-        </div>
-      </div>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+
+                {/* Защищенные маршруты */}
+                <Route
+                    path="/student/dashboard"
+                    element={
+                        <ProtectedRoute requiredRole="student">
+                            <StudentDashboard />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Здесь будут маршруты для ментора и админа */}
+                <Route
+                    path="/mentor/dashboard"
+                    element={
+                        <ProtectedRoute requiredRole="mentor">
+                            <div>Mentor Dashboard</div>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/admin/dashboard"
+                    element={
+                        <ProtectedRoute requiredRole="admin">
+                            <div>Admin Dashboard</div>
+                        </ProtectedRoute>
+                    }
+                />
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;
